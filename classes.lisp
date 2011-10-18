@@ -121,7 +121,7 @@
 ;;; called a few (less than 1000000000000000000) times per second. We hope
 ;;; short-site-name actually returning something to narrow 
 ;;; the value down more.
-(defmethod make-content-id ()
+(defun make-content-id ()
   "Make a Content-ID header value"
   (format nil "~A.~A.cl-mime@~A"
 	  (get-universal-time)

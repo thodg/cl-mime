@@ -122,32 +122,34 @@ object representing it or nil if the message is not MIME compatible"))
 		;; Headers beginning with whitespace are continuations
 		;; from the header on the previous line. Headers not
 		;; beginning with complete lines are starts of new headers
-		(aif ;(match "^[[:blank:]]+(.*)" line)
-		 (match "^\\s+(.*)" line)
+		(unless 
+		    (register-groups-bind
+		     (next-line)
+		     ("^\\s+(.+)" line)
+		     
 		     (setq previous-line
-			   (concatenate 'string previous-line " "
-					(svref it 0)))
-		     (progn
-		       (if previous-line
-			   (push (create-header previous-line) headers))
-		       (setq previous-line line))))))
+			   (format nil "~A ~A" previous-line next-line)))
+		  (if previous-line
+		      (push (create-header previous-line) headers))
+		  (setq previous-line line)))))
 
 
 (defun header-value (header)
-  "Takes a header string and returns the value component"
-  (aif (match "^([^;\\s]*)" (cdr header))
-       (svref it 0)
-       nil))
+  "Takes a header cons and returns the value component"
+  (register-groups-bind (value) ("^([^;\\s]*)" (cdr header)) value))
 
 
 (defun header-parms (header)
-  "Takes a header string and returns all parameters contained within"
+  "Takes a header cons and returns all parameters contained within"
   (extract-parms
    (regex-replace-all "\\(.*?\\)"
-		      (aif (match "^[^;\\s]*(;.*)$" (cdr header))
-			   (svref it 0)
-			   (return-from header-parms nil))
-		      "") nil))
+		      (or (register-groups-bind
+			   (params)
+			   ("^[^;\\s]*(;.*)$" (cdr header))
+			   
+			   params)
+			  (return-from header-parms nil))
+		      "")))
 
 
 (defun header-comments (header)
@@ -158,30 +160,40 @@ object representing it or nil if the message is not MIME compatible"))
 (defun extract-header-comments (header-value-string &optional comment-list)
   "Takes a header string and optional list of already extracted comments and
 returns all comments contained within that string"
-  (aif (match "\\((.*?)\\)(.*)" header-value-string)
-       (extract-header-comments (svref it 1)
-				(cons (svref it 0) comment-list))
-       comment-list))
+  (if (register-groups-bind
+       (comment rest)
+       ("\\((.*?)\\)(.*)" header-value-string)
+       
+       (setq header-value-string rest)
+       (setq comment-list (cons comment comment-list)))
+
+      (extract-header-comments header-value-string comment-list)
+    (reverse comment-list)))
+
 			       
 (defun create-header (header-string)
   "Takes a header string and returns a keyword/value header pair"
-  (let* ((match (match "^([^:\\s]+):\\s*(.*)$" line))
-	 (header-name (svref match 0))
-	 (header-value (svref match 1)))
-    (if match
-	(cons (ensure-keyword header-name)
-	      header-value)
-      nil)))
+  (register-groups-bind
+   (header-name header-value)
+   ("^([^:\\s]+):\\s*(.*)$" header-string)
+   
+   (cons (ensure-keyword header-name)
+	 header-value)))
 
 
 (defun extract-parms (parm-string &optional parms)
   "Takes a string of parameters and returns a list of keyword/value
 parameter pairs"
-  (aif (match ";\\s*(.*?)=\"?([^;\"\\s]*)\"?[\\s]*(;?.*)" parm-string)
-       (extract-parms (svref it 2) (cons (list (ensure-keyword (svref it 0))
-					      (svref it 1))
-					parms))
-       parms))
+  (if (register-groups-bind
+       (parm-name parm-value rest)
+       (";\\s*(.*?)=\"?([^;\"\\s]*)\"?[\\s]*(;?.*)" parm-string)
+       
+       (setq parm-string rest)
+       (setq parms (cons (list (ensure-keyword parm-name) parm-value)
+			 parms)))
+  
+      (extract-parms parm-string parms)
+    parms))
 
 
 (defgeneric parse-body (body mime-type &optional boundary)

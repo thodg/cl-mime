@@ -23,8 +23,9 @@
 (defpackage :mime
   (:documentation "A package for constructing MIME objects for printing and
 parsing MIME formatted strings or streams.")
-  (:nickname :cl-mime)
+  (:nicknames :cl-mime)
   (:use :cl :kmrcl :cl-ppcre)
+  (:shadow :read-stream-to-string)
   (:export :text-mime
 	   :multipart-mime
 	   :mime

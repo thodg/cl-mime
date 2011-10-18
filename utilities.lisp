@@ -47,18 +47,3 @@ Executes BODY for every line in the file"
 		   (,exit-clause t)
 		   (princ ,line-var ,string-stream)
 		   (terpri ,string-stream)))))
-
-
-;;; mostly I just want the registers when I match and I don't want
-;;; multiple-value-binds everywhere - yuck!
-(defmacro match (regex string)
-  "Performs a regular expression match on STRING using REGEX and returns
-an array containing all matched regex registers"
-  (let ((full-match (gensym))
-	(match-registers (gensym)))
-    `(when (stringp ,string)
-       (multiple-value-bind 
-	   (,full-match ,match-registers) 
-	   (scan-to-strings ,regex ,string)
-	 (declare (ignore ,full-match))
-	 ,match-registers))))
