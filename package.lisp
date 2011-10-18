@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; mime.asd: System Definition
+;;;; package.lisp: Package definition
 ;;;; Copyright (C) 2004 Robert Marlow <bobstopper@bobturf.org>
 ;;;;
 ;;;; This library is free software; you can redistribute it and/or
@@ -20,22 +20,39 @@
 
 
 
-(defpackage :mime-system
-  (:use :asdf :cl))
+(defpackage :cl-mime
+  (:documentation "A package for constructing MIME objects for printing and
+parsing MIME formatted strings or streams.")
+  (:nicknames :mime)
+  (:use :cl :cl-ppcre :base64)
+  (:export :text-mime
+	   :multipart-mime
+	   :mime
+	   :lookup-mime
+	   :make-content-id
+	   :content-type
+	   :content-subtype
+	   :content-type-parameters
+	   :content-id
+	   :content-description
+	   :content-transfer-encoding
+	   :content-disposition
+	   :content-disposition-parameters
+	   :mime-version
+	   :charset
+	   :boundary
+	   :prologue
+	   :epilogue
+	   :content
+	   :get-header
+	   :get-mime-headers
+	   :get-content-type-parameter
+	   :get-content-disposition-parameter
+	   :print-headers
+	   :header-value
+	   :header-parms
+	   :header-comments
+	   :print-mime
+	   :parse-mime))
 
-(in-package :mime-system)
-
-(defsystem :mime
-  :name "MIME"
-  :author "Robert Marlow <rob@bobturf.org>"
-  :version "0.3.2"
-  :maintainer "Robert Marlow <rob@bobturf.org>"
-  :depends-on (:kmrcl :cl-ppcre)
-  :serial t
-  :components
-  ((:file "fundamentals")
-   (:file "utilities")
-   (:file "classes")
-   (:file "headers")
-   (:file "parse-mime")
-   (:file "print-mime")))
+(in-package :mime)

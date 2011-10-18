@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; fundamentals.lisp: Package definition and any globals
+;;;; cl-mime.asd: System Definition
 ;;;; Copyright (C) 2004 Robert Marlow <bobstopper@bobturf.org>
 ;;;;
 ;;;; This library is free software; you can redistribute it and/or
@@ -20,40 +20,23 @@
 
 
 
-(defpackage :mime
-  (:documentation "A package for constructing MIME objects for printing and
-parsing MIME formatted strings or streams.")
-  (:nicknames :cl-mime)
-  (:use :cl :kmrcl :cl-ppcre)
-  (:shadow :read-stream-to-string)
-  (:export :text-mime
-	   :multipart-mime
-	   :mime
-	   :lookup-mime
-	   :make-content-id
-	   :content-type
-	   :content-subtype
-	   :content-type-parameters
-	   :content-id
-	   :content-description
-	   :content-transfer-encoding
-	   :content-disposition
-	   :content-disposition-parameters
-	   :mime-version
-	   :charset
-	   :boundary
-	   :prologue
-	   :epilogue
-	   :content
-	   :get-header
-	   :get-mime-headers
-	   :get-content-type-parameter
-	   :get-content-disposition-parameter
-	   :print-headers
-	   :header-value
-	   :header-parms
-	   :header-comments
-	   :print-mime
-	   :parse-mime))
+(defpackage :cl-mime-system
+  (:use :asdf :cl))
 
-(in-package :mime)
+(in-package :cl-mime-system)
+
+(defsystem :cl-mime
+  :name "MIME"
+  :author "Robert Marlow <bobstopper@bobturf.org>"
+  :version "0.5.0"
+  :maintainer "Robert Marlow <bobstopper@bobturf.org>"
+  :depends-on (:cl-ppcre :cl-base64 :cl-qprint)
+  :serial t
+  :components
+  ((:file "package")
+   (:file "utilities")
+   (:file "classes")
+   (:file "headers")
+   (:file "encoding")
+   (:file "parse-mime")
+   (:file "print-mime")))

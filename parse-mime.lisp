@@ -55,19 +55,21 @@ object representing it or nil if the message is not MIME compatible"))
 
       (if (equal mime-version "1.0")
 	
-	  (let ((mime-obj-gen
-		 (list
-		  mime-type
-		  :type content-type
-		  :subtype content-subtype
-					;		:parameters content-parm
-		  :encoding (cdr (assoc :content-transfer-encoding
-					headers))
-		  :description (cdr (assoc :content-description
-					   headers))
-		  :id (remove #\< (remove #\> (cdr (assoc :content-id headers))))
-		  :disposition content-disposition
-		  :disposition-parameters content-disposition-parm)))
+	  (let* ((encoding (intern (cdr (assoc :content-transfer-encoding
+					      headers))
+				   :keyword))
+		 (mime-obj-gen
+		  (list
+		   mime-type
+		   :type content-type
+		   :subtype content-subtype
+		   :encoding encoding
+		   :content-encoding encoding
+		   :description (cdr (assoc :content-description
+					    headers))
+		   :id (remove #\< (remove #\> (cdr (assoc :content-id headers))))
+		   :disposition content-disposition
+		   :disposition-parameters content-disposition-parm)))
 	      
 	    (case mime-type
 	      ((text-mime)
@@ -309,8 +311,10 @@ the content type and the the content subtype"
 	       ("^[^#\\s]+\\s+([^#]+)" line)
 	     (find extension (split "\\s+" extensions)
 		   :test #'string-equal))
-	   (unless (eq line 'eof)
-	     (register-groups-bind
-		 (content-type content-subtype)
-		 ("^([^\/]+)\/([^\\s]+)" line)
-	       (values content-type content-subtype))))))))
+	   (if (eq line 'eof)
+	       (values "application" "octet-stream")
+	       (register-groups-bind
+		   (content-type content-subtype)
+		   ("^([^\/]+)\/([^\\s]+)" line)
+		 (values (or content-type "application")
+			 (or content-subtype "octet-stream")))))))))
