@@ -48,11 +48,15 @@ parsing MIME formatted strings or streams.")
 	   :get-mime-headers
 	   :get-content-type-parameter
 	   :get-content-disposition-parameter
-	   :print-headers
 	   :header-value
 	   :header-parms
 	   :header-comments
 	   :print-mime
-	   :parse-mime))
+	   :print-headers
+	   :parse-mime
+	   :parse-body
+	   :parse-headers
+	   :decode-content
+	   :encode-content))
 
 (in-package :mime)

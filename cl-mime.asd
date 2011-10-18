@@ -28,7 +28,7 @@
 (defsystem :cl-mime
   :name "MIME"
   :author "Robert Marlow <bobstopper@bobturf.org>"
-  :version "0.5.0"
+  :version "0.5.1"
   :maintainer "Robert Marlow <bobstopper@bobturf.org>"
   :depends-on (:cl-ppcre :cl-base64 :cl-qprint)
   :serial t
