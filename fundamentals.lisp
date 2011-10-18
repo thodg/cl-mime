@@ -29,6 +29,7 @@ parsing MIME formatted strings or streams.")
   (:export :text-mime
 	   :multipart-mime
 	   :mime
+	   :lookup-mime
 	   :make-content-id
 	   :content-type
 	   :content-subtype

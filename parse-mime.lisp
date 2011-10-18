@@ -29,8 +29,7 @@ object representing it or nil if the message is not MIME compatible"))
 
 
 (defmethod parse-mime ((mime string) &optional headers)
-  (declare (ignore headers))
-  (parse-mime (make-string-input-stream mime)))
+  (parse-mime (make-string-input-stream mime) headers))
 
 
 (defmethod parse-mime ((mime stream) &optional headers)
@@ -289,3 +288,29 @@ BOUNDARY"
 	       (setq end-type 'end-mime))))
      end-type)))
  
+
+(defparameter *mime-types-file* 
+  (make-pathname :directory '(:absolute "etc")
+		 :name "mime"
+		 :type "types"))
+
+
+(defun lookup-mime (pathname &optional mime-types-file)
+  "Takes a PATHNAME argument and uses MIME-TYPES-FILE (or the system 
+default) to determine the mime type of PATHNAME. Returns two values:
+the content type and the the content subtype"
+  (let ((extension (pathname-type pathname)))
+    (with-open-file
+	(mime (or mime-types-file *mime-types-file*) :direction :input)
+      (read-lines
+	  (line mime)
+	  ((register-groups-bind
+	       (extensions)
+	       ("^[^#\\s]+\\s+([^#]+)" line)
+	     (find extension (split "\\s+" extensions)
+		   :test #'string-equal))
+	   (unless (eq line 'eof)
+	     (register-groups-bind
+		 (content-type content-subtype)
+		 ("^([^\/]+)\/([^\\s]+)" line)
+	       (values content-type content-subtype))))))))
